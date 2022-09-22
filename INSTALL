@@ -1,0 +1,19 @@
+
+
+# This is for x86 openwrt:
+
+copy noipv6 to target:/sbin
+
+copy init_script/init  to taget:/etc/init.d
+
+#On target:
+cd /etc/init.d
+chmod +x noipv6
+
+# This will setup /etc/rc.d 
+service noipv6 enable
+
+# To run 
+service noipv6 start
+
+

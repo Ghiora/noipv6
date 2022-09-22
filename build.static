@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# If you get errors like this:
+#error[E0463]: can't find crate for `core`
+#  |
+#  = note: the `x86_64-unknown-linux-musl` target may not be installed
+#  = help: consider downloading the target with `rustup target add x86_64-unknown-linux-musl`
+# THAN you need to:
+# rustup target add x86_64-unknown-linux-musl
+
+RUSTFLAGS='-C link-arg=-s' cargo build --release --target x86_64-unknown-linux-musl
+ls -l target/x86_64-unknown-linux-musl/release/noipv6
+

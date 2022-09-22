@@ -1,0 +1,10 @@
+
+0) We should not run as root
+1) Due to me being new to rust it probably needs cleaning up
+2) Send logs to syslog!!! This works but there are some thing I need to understand better.
+
+Lower priority
+1) Compile and test it runnig on raspberry pi
+2) Consistency in getting ip addresses (a result of using certain packages)
+
+

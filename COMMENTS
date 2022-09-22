@@ -1,0 +1,46 @@
+To run as a static on openwrt:
+#I will need this:
+apt install musl-tools
+
+# I add a target
+rustup target add x86_64-unknown-linux-musl
+
+
+# Added this to: Cargo.toml
+# And did a reguler build
+# cargo build
+openssl = { version = "0.10", features = ["vendored"] }
+# THe following work:
+cargo build
+cargo build --release
+
+# This does not:
+# Then compile:
+RUSTFLAGS='-C link-arg=-s' cargo build --release --target x86_64-unknown-linux-musl
+# The static binary is in:
+
+
+
+#Doing this will set the env for the current code:
+#export NOIP_USERNAME=someuser@gmail.com
+
+
+# Environment vars that clap can read
+
+NOIP_USERNAME=someuser@gmail.com
+NOIP_PASSWORD=SomePassowrd
+NOIP_HOSTNAMES=yourdomain.ddns.net
+NOIP_CHECK_INTERVAL=10m
+NOIP_LOG_LEVEL=debug
+
+NOIP_HTTP_TIMEOUT=10s
+
+#NOIP_DAEMON_USER=
+#NOIP_DAEMON_GROUP=
+#NOIP_DAEMON_PID_FILE=
+
+# I No longer used
+#NOIP_EXEC_ON_CHANGE=
+
+
+

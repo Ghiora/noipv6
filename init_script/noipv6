@@ -1,0 +1,46 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2022 Ghiora Drori
+# System init.d script for  Openwrt /etc/init.d/noipv6
+
+# After rnd 99 is started    
+START=100
+
+# Before network 90 is stopped
+STOP=89
+
+start_service() {             
+        # We wait for networking and wan to be up!!
+        # The default timeout is 5 minutes (So I do not specify it)
+        ubus -v wait_for network network.interface.wan network.interface.wan6 >>/tmp/ubus_noipv6 2>&1 &
+        /sbin/noipv6 >>/tmp/noipv6 2>&1 &
+}
+
+# Command to launch application on reboot
+
+start() {        
+        echo start
+        # We wait for networking and wan to be up!!
+        # The default timeout is 5 minutes (So I do not specify it)
+        # For some reason, I have yet to determine this does not wait!!
+        echo "before" >>/tmp/noipv6_ubus 2>&1 
+        date >>/tmp/noipv6_ubus 2>&1 
+        ubus -v wait_for network network.interface.wan network.interface.wan6 >>/tmp/noipv6_ubus 2>&1 &
+        echo "after ubus" >>/tmp/noipv6_ubus 2>&1 
+        date >>/tmp/noipv6_ubus 2>&1 
+        sleep 30 
+        date >>/tmp/noipv6_ubus 2>&1 
+        /sbin/noipv6 >>/tmp/noipv6 2>&1 &
+}                 
+ 
+stop_service() {          
+        echo stop
+        # commands to kill application 
+        killall  noipv6
+}
+
+stop() {          
+        echo stop
+        # commands to kill application 
+        killall  noipv6
+}
+

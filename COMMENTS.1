@@ -1,0 +1,74 @@
+
+1) StandAlone/rust-alookup has a program that in src/main.rs will return the dns addresses for a URL.
+	It uses the library https://github.com/stbuehler/rust-alookup
+	The MIT License
+
+
+2) I use the local-ip-address library for getting the local  
+   IP address, both ipv4 and ipv6 of your system.
+
+	It and was written by: Esteban Borai 
+	I got it here: 
+		https://github.com/EstebanBorai/local-ip-address
+		It has an MIT and Apache license.
+
+2.1) StandAlone/ipv6_addr_as_func an example of using it.
+
+	In src/main.rs I pass it the network interface:
+		const INTERFACE: &str = "enx7898e81e3d5d";
+	The ipv6_addr_as_func returns only the first latest global ipv6 address.
+	As much as I can tell on Ubuntu it is the latest (aka newest).
+	I did not test it on other systems. MY guess it will work on any linux.
+
+	Running:
+		./ipv6_addr_as_func/target/debug/ipv6_addr
+	Results in:
+		Latest ipv6 from interface: 2a0d:6fc2:5310:4c00::e93
+
+
+3) StandAlone/get_nat_ip has a program that calls a function 
+   get_my_nat_ip_address in src/main.rs which returns the nat address 
+   of the machine it is running on by doing a get to:
+
+		http://ip1.dynupdate.no-ip.com (the same results you get if you use this URL in your browser)
+
+You can see all stand alone programs above running by:
+# Assuming you have cargo and rust installed
+cd StandAlone
+# This will compile all of the stand alones and run them.
+
+
+################################################################################
+# The results should be something like this:
+################################################################################
+
+./all.sh
+
+Get the ips for my computer by using dns 
+The ipv4 returns the nat, both the ipv4 and ipv6 should match those below!!
+If not it is time to update the dynamic dns in https://www.noip.com
+176.231.163.229
+2a0d:6cf2:5310:4c00::e93
+
+
+
+Get my ipv4 from the http://ip1.dynupdate.no-ip.com 
+This is the IPV4 address SEEN from the outside my network because of nat!!
+Got text "176.231.163.229"
+
+
+
+Get the latest ipv6 from the interface 
+It should be the same as the one from dns below!!
+
+Latest ipv6 from interface: 2a0d:6fc2:5310:4c00::e93
+
+################################################################################
+
+# Things to do:
+
+
+Copy the changes I made to the stand alone code!!
+
+
+
