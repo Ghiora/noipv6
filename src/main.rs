@@ -332,8 +332,9 @@ fn get_network_info(my_cfg: &Config) -> (bool, IpAddr, IpAddr) {
         }
         Err(_) => {
             let cln = line!();
-            info!("{cln}: Local Ipv6 addr not found error!");
+            info!("{cln}: Local Ipv6 addr not found error!\n");
             ipv6_if_found = false;
+            ipv6_if_val = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
         }
     }
     debug!("");
@@ -348,18 +349,16 @@ fn get_network_info(my_cfg: &Config) -> (bool, IpAddr, IpAddr) {
 
     let nat_ip = get_nat_ip::get_my_nat_ip_address();
     match nat_ip {
-        Ok(text) => {
+        Ok(net_ip) => {
             // If no ipv4 address I put in a dummy,
             // the flag ipv4_nat_found should protect us!!
-            // I think I should use unwrap_or_else , need to learn more error handeling.
-            // Ghiora
-            ipv4_nat_val = text.parse().unwrap_or(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
-            debug!("Got text {:?}, {:?}", text, ipv4_nat_val);
+            ipv4_nat_val = net_ip.parse().unwrap_or(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)));
+            debug!("Got text {:?}, {:?}\n", net_ip, ipv4_nat_val);
         }
         Err(nat_ip) => {
             ipv4_nat_found = false;
             let cln = line!();
-            info!("{cln}: No Ipv4 address found at noip: {:?}", nat_ip);
+            info!("{cln}: No Ipv4 address found at noip: {:?}\n", nat_ip);
         }
     }
 
@@ -374,21 +373,39 @@ fn get_network_info(my_cfg: &Config) -> (bool, IpAddr, IpAddr) {
     };
     debug!("Updating with url {}", hostnames);
 
-    let dns_ips: Vec<std::net::IpAddr> = lookup_host(&hostnames).unwrap();
+    //let mut dns_ips = Vec<std::net::IpAddr>::new();
+    let mut dns_ips = Vec::<std::net::IpAddr>::new();
+    // This also can panic will replace unwrap with unwrap_or!!
+    //let dns_ips: Vec<std::net::IpAddr> = lookup_host(&hostnames);
+    let dns_ips_iter = lookup_host(&hostnames);
+    match dns_ips_iter {
+        Ok(dns_ips_iter) => {
+            for val in dns_ips_iter {
+                dns_ips.push(val);
+            }
+        }
+        Err(error) => {
+            info!("No values returned in lookup {:?}", error);
+            //ADD SOMETHING HERE TO RETUN EMPTY dns_ips
+        }
+    }
+
     //  There could be 0, 1, 2, or more.
     // I assume I only have one of ipv4 and ipv6,
     // anyone doing a more complicated case
     // will have to be fix this  stuff!!
     // GET THE FIRST IPV6 and IPV4 IF THEY EXIST
     debug!("Number of ips returned: {:?}", dns_ips.len());
-    debug!("dns_ips: {:?}", dns_ips);
-    debug!(
-        "lookup_host results: 
+    if dns_ips.len() > 0 {
+        debug!("dns_ips: {:?}", dns_ips);
+        debug!(
+            "lookup_host results: 
             Dns addresses of {}: ipv6:{:?} ipv4:{:?}",
-        &hostnames,
-        dns_ips[0],
-        dns_ips[1]
-    );
+            &hostnames,
+            dns_ips[0],
+            dns_ips[1]
+        );
+    }
 
     // This initial value here will not be returned by dns!!
     let mut ipv4_dns = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
@@ -398,6 +415,8 @@ fn get_network_info(my_cfg: &Config) -> (bool, IpAddr, IpAddr) {
     let mut ipv6_dns = IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1));
     let mut ipv6_dns_found = false;
 
+    // If dns_ips is empty this skipped so 
+    // there will be no update
     for next_addr in dns_ips {
         if next_addr.is_ipv4() {
             ipv4_dns_found = true;
@@ -476,9 +495,9 @@ fn updater(my_cfg: &Config) -> Result<()> {
                     info!("{cln}: update succeeded, ip={}", ipv4_nat_val);
                     let cln = line!();
                     info!("{cln}: update succeeded, ipv6={}", ipv6_if_val);
-                    
-                    logger(& format!("Update succeeded,ipv4={}",ipv4_nat_val.to_string()));
-                    logger(& format!("Update succeeded,ipv6={}",ipv6_if_val.to_string()));                    
+
+                    logger(&format!("Update succeeded,ipv4={}", ipv4_nat_val.to_string()));
+                    logger(&format!("Update succeeded,ipv6={}", ipv6_if_val.to_string()));
 
                     retries = 0;
                     last_error = None;
@@ -521,11 +540,14 @@ fn updater(my_cfg: &Config) -> Result<()> {
         let cln = line!();
         info!("{cln}: checking ip again in {}", humantime::format_duration(dur));
 
-       logger(& format!(
-            "Checking ip again in {} minutes",
-            &humantime::format_duration(dur).to_string()));
+        logger(
+            &format!(
+                "Checking ip again in {} minutes",
+                &humantime::format_duration(dur).to_string()
+            )
+        );
 
-            thread::sleep(dur);
+        thread::sleep(dur);
     }
 }
 

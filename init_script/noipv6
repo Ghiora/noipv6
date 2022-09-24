@@ -8,28 +8,17 @@ START=100
 # Before network 90 is stopped
 STOP=89
 
-start_service() {             
-        # We wait for networking and wan to be up!!
-        # The default timeout is 5 minutes (So I do not specify it)
-        ubus -v wait_for network network.interface.wan network.interface.wan6 >>/tmp/ubus_noipv6 2>&1 &
-        /sbin/noipv6 >>/tmp/noipv6 2>&1 &
+start_service() {
+	# The script will wait for an ipv4 address on the NOIP_INTERFACE in /etc/noipv6
+	/etc/config/wait_for_ip4_address.sh  & 		
 }
 
 # Command to launch application on reboot
 
 start() {        
         echo start
-        # We wait for networking and wan to be up!!
-        # The default timeout is 5 minutes (So I do not specify it)
-        # For some reason, I have yet to determine this does not wait!!
-        echo "before" >>/tmp/noipv6_ubus 2>&1 
-        date >>/tmp/noipv6_ubus 2>&1 
-        ubus -v wait_for network network.interface.wan network.interface.wan6 >>/tmp/noipv6_ubus 2>&1 &
-        echo "after ubus" >>/tmp/noipv6_ubus 2>&1 
-        date >>/tmp/noipv6_ubus 2>&1 
-        sleep 30 
-        date >>/tmp/noipv6_ubus 2>&1 
-        /sbin/noipv6 >>/tmp/noipv6 2>&1 &
+	# The script will wait for an ipv4 address on the NOIP_INTERFACE in /etc/noipv6
+	/etc/config/wait_for_ip4_address.sh  & 		
 }                 
  
 stop_service() {          
