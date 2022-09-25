@@ -318,9 +318,7 @@ fn logger(message: &str) {
 
 fn get_network_info(my_cfg: &Config) -> (bool, IpAddr, IpAddr) {
     let mut ipv6_if_found: bool = true;
-    // If it is empty rust comlians even so I test with a flag if is empty.
-    // I think I need to learn more rust.
-    let mut ipv6_if_val = Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0);
+    let ipv6_if_val; 
 
     // Get the local ipv6 from the local interface
     // the funtion get_ipv6_if_addr return only the latest global ipv6 address
